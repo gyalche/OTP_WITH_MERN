@@ -9,6 +9,33 @@ export async function validatePassword(values) {
   const errors = passwordVerify({}, values);
   return errors;
 }
+//validate reset;
+export async function resetPasswordValidation(values) {
+  const errors = passwordVerify({}, values);
+  if (values.password !== values.confirm_pws) {
+    errors.exists = toast.error('Password not matched');
+  }
+  return errors;
+}
+//validate register form;
+export async function registerValidation(values) {
+  const error = usernameVerify({}, values);
+  passwordVerify(error, values);
+  emailVerify(error, values);
+  return error;
+}
+
+//validate email;
+function emailVerify(error = {}, values) {
+  if (!values.email) {
+    error.email = toast.error('Email requuired');
+  } else if (values.email.includes(' ')) {
+    error.email = toast.error('Wrong email');
+  } else if (!/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(values.email)) {
+    error.email = toast.error('invalid email address..');
+  }
+  return error;
+}
 //validate password;
 function passwordVerify(error = {}, values) {
   const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
