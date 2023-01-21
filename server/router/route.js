@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express from 'express';
 import {
   createResetSession,
   generateOTP,
@@ -8,8 +8,8 @@ import {
   resetPassword,
   updateUser,
   verifyOTP,
-} from '../controllers/appController';
-const router = Router();
+} from '../controllers/appController.js';
+const router = express.Router();
 
 //post route;
 router.post('/register', register);
