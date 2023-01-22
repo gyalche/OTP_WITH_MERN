@@ -1,5 +1,24 @@
 import User from '../model/User.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+//middleware for verify user;
+export async function verifyUser(req, res, next) {
+  try {
+    const token = req.headers.authroization.split(' ')[0];
+    if (token) {
+      const verify = jwt.verify(token, 'dawadon');
+      if (verify) {
+        const user = await await User.findById(verify.id);
+        if (!user) throw new Error();
+        req.user = user;
+        next();
+      }
+    }
+  } catch (error) {
+    res.status(404).send({ error: 'Authentication error' });
+  }
+}
 export async function register(req, res) {
   try {
     const { username, password, profile, email } = req.body;
@@ -61,11 +80,42 @@ export async function register(req, res) {
 }
 
 export async function login(req, res) {
-  res.json('login');
+  const { username, password } = req.body;
+  try {
+    const user = User.findOne({ username });
+    if (user) {
+      const validate = await bcrypt.compare(password, user.password);
+      if (!validate) {
+        res.status(500).send({ message: 'password doesnt match' });
+      } else {
+        const token = jwt.sign({ userId: user._id }, 'dawadon', {
+          expiresIn: '24h',
+        });
+        res.status(200).send({ message: 'sucessflly logged in' }, token, user);
+      }
+    } else {
+      res.status(404).send({ message: 'username doesnt exist' });
+    }
+  } catch (error) {
+    res.status(404).send(error);
+  }
 }
 
 export async function getUser(req, res) {
-  res.json('get user');
+  const { username } = req.params;
+  try {
+    if (!username) {
+      res.status(501).send({ error: 'Invalid username' });
+    }
+    User.findOne({ username }, function (err, user) {
+      if (err) return res.status(500).send({ error: err });
+      if (!user) return res.status(501).send({ error: 'coulnt fint the user' });
+      const { password, ...rest } = user._docs;
+      return res.status(201).send(rest);
+    });
+  } catch (error) {
+    res.status(404).send('cannot find user');
+  }
 }
 
 export async function updateUser(req, res) {

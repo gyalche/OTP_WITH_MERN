@@ -4,8 +4,9 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import connect from './databse/conn.js';
 import router from './router/route.js';
+import dotenv from 'dotenv';
 const app = express();
-
+dotenv.config();
 //middleware
 app.use(cors());
 app.use(morgan('dev'));
