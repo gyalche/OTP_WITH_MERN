@@ -3,11 +3,13 @@ import {
   createResetSession,
   generateOTP,
   getUser,
+  localVeriable,
   login,
   register,
   resetPassword,
   updateUser,
   verifyOTP,
+  verifyUser,
 } from '../controllers/appController.js';
 const router = express.Router();
 
@@ -19,12 +21,12 @@ router.post('/login', login);
 
 //get method;
 router.get('/user/:username', getUser);
-router.get('/generateOTP', generateOTP);
+router.get('/generateOTP', verifyUser, localVeriable, generateOTP);
 router.get('/verifyOTP', verifyOTP);
 router.get('/createResetSession', createResetSession);
 
 //put method;
-router.put('/updateuser', updateUser);
+router.put('/updateuser', verifyUser, updateUser);
 router.put('/resetPassword', resetPassword);
 
 export default router;

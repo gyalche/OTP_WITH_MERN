@@ -1,7 +1,7 @@
 import User from '../model/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
+import otpGenerator from 'otp-generator';
 //middleware for verify user;
 export async function verifyUser(req, res, next) {
   try {
@@ -18,6 +18,12 @@ export async function verifyUser(req, res, next) {
   } catch (error) {
     res.status(404).send({ error: 'Authentication error' });
   }
+}
+
+//local variables
+export function localVeriable(req, res, next) {
+  req.app.locals = { OTP: null, resetSession: false };
+  next();
 }
 export async function register(req, res) {
   try {
@@ -120,7 +126,7 @@ export async function getUser(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const id = req.query.id;
+    const { userId } = req.user;
     if (id) {
       const body = req.body;
       //update the data;
@@ -138,7 +144,12 @@ export async function updateUser(req, res) {
 }
 
 export async function generateOTP(req, res) {
-  res.json('update user');
+  req.app.locals.OTP = await otpGenerator.generate(6, {
+    lowerCaseAlphabets: false,
+    upperCaseAlphabets: false,
+    specialChars: false,
+  });
+  res.status(201).send({ code: req.app.locals.OTP });
 }
 
 export async function verifyOTP(req, res) {
