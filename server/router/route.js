@@ -12,10 +12,10 @@ import {
   verifyUser,
 } from '../controllers/appController.js';
 const router = express.Router();
-
+import { registerMail } from '../controllers/mailer.js';
 //post route;
 router.post('/register', register);
-router.post('/registerMail');
+router.post('/registerMail', registerMail);
 router.post('/authenticate');
 router.post('/login', login);
 
