@@ -3,7 +3,7 @@ import {
   createResetSession,
   generateOTP,
   getUser,
-  localVeriable,
+  localVariable,
   login,
   register,
   resetPassword,
@@ -21,12 +21,12 @@ router.post('/login', login);
 
 //get method;
 router.get('/user/:username', getUser);
-router.get('/generateOTP', verifyUser, localVeriable, generateOTP);
-router.get('/verifyOTP', verifyOTP);
-router.get('/createResetSession', createResetSession);
+router.get('/generateOTP', verifyUser, localVariable, generateOTP);
+router.get('/verifyOTP', verifyUser, verifyOTP);
+router.get('/createResetSession', verifyUser, createResetSession);
 
 //put method;
 router.put('/updateuser', verifyUser, updateUser);
-router.put('/resetPassword', resetPassword);
+router.put('/resetPassword', verifyUser, resetPassword);
 
 export default router;

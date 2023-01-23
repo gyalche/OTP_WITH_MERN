@@ -21,7 +21,7 @@ export async function verifyUser(req, res, next) {
 }
 
 //local variables
-export function localVeriable(req, res, next) {
+export function localVariable(req, res, next) {
   req.app.locals = { OTP: null, resetSession: false };
   next();
 }
@@ -153,13 +153,54 @@ export async function generateOTP(req, res) {
 }
 
 export async function verifyOTP(req, res) {
-  res.json('update user');
+  const { code } = req.query;
+  if (parseInt(req.app.locals.OTP) === parseInt(code)) {
+    req.app.locals.OTP = null;
+    req.app.locals.resetSession = true; //set the session for reset password;
+    return res.status(201).send({ message: 'Veify sucessfully' });
+  }
+  return res.status(200).send({ error: 'Invalid code' });
 }
 
 export async function createResetSession(req, res) {
-  res.json('update user');
+  if (req.app.locals.resetSession) {
+    req.app.locals.resetSession = false; //allow access to this router only once
+    return res.status(201).send({ msg: 'access granted' });
+  }
+  res.status(400).send({ error: 'Session expired' });
 }
 
 export async function resetPassword(req, res) {
-  res.json('update user');
+  try {
+    if (!req.app.locals.resetSession)
+      return res.status(404).send({ error: 'Session expired' });
+    const { username, password } = req.body;
+    try {
+      User.findOne({ username })
+        .then((user) => {
+          bcrypt
+            .hash(password, 10)
+            .then((hashPassword) => {
+              User.updateOne(
+                { username: user.username },
+                { password: hashPassword },
+                function (err, data) {
+                  if (err) throw err;
+                  return res.status(201).send({ message: 'Password updated' });
+                }
+              );
+            })
+            .catch((error) => {
+              res.status(500).send({ error: 'Unable to hash password' });
+            });
+        })
+        .catch((err) => {
+          res.status(404).send({ error: 'User not found' });
+        });
+    } catch (error) {
+      return res.status(500).send({ error });
+    }
+  } catch (error) {
+    return res.status(401).send(error);
+  }
 }
