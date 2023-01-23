@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer';
 import Mailgen from 'mailgen';
-
 const email = process.env.EMAIL;
 const password = process.env.PASSWORD;
 
